@@ -6,11 +6,11 @@ It is based on OBS script [OSC Sender for OBS](https://obsproject.com/forum/thre
 **IMPORTANT**: pythonosc server code needs Python 3.7 and OBS is originally done in 3.6. OBS has to be started with `LD_PRELOAD=/<path>/libpython3.8.so`. It is explained in this [Pull Request comment](https://github.com/obsproject/obs-studio/pull/3335#issuecomment-760255757)
 
 ### Examples of receiving OSC messages (Server)
-The script opens a port in the computer and listen to incoming messages from another software. Messages are with 1 level address and some arguments, depend on the type of command. For example, to locate a source called "ball" in "main" scene, to x: 960 x: 540 (middle of FullHD), message is:
+The script opens a port in the computer and listen to incoming messages from another software. Messages are with 1 level address and some arguments, depend on the type of command. For example, to locate an item called "ball" in "main" scene, to x: 960 y: 540 (middle of FullHD), message is:
 
 _/item_set_pos main ball 960 540_
 
-Another example: to make the same ball move to that point, from where it was, with a tween of 2 seconds and an ease type of 'outQuad':
+Another example: to make the same ball "move" (interpolation included) from where it was to x: 960 y: 540, delaying 2 seconds to get that location with an ease type of 'outQuad':
 
 _/item_tween to_pos main ball 960 540 2000 outQuad_
 
