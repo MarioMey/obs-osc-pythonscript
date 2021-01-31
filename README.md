@@ -10,59 +10,58 @@ The script opens a port in the computer and listen to incoming messages from ano
 
 _/item_set_pos main ball 960 540_
 
-Another example: to make the same ball "move" (interpolation included) from where it was to x: 960 y: 540, delaying 2 seconds to get that location with an ease type of 'outQuad':
+Another example: to make the same ball "move" (interpolation included) from where it was to x: 960 y: 540, wait 500ms to start moving to get that location in 2000ms with an ease type of 'outQuad':
 
-_/item_tween to_pos main ball 960 540 2000 outQuad_
+_/item_tween to_pos main ball 960 540 2000 500 outQuad_
 
 ### List of commands
 #### Scenes: changing.
 `/scene_change scene`
 #### Items: position, scale, rotation, visibility, crop, alignment, delete, duplication, reference, etc.
 ```
-/item_set_pos scene item pos_x pos_y
-/item_set_scl scene item scl_x scl_y
-/item_set_rot scene item rotation
+/item_set_pos       scene item pos_x pos_y
+/item_set_scl       scene item scl_x scl_y
+/item_set_rot       scene item rotation
 /item_set_transform scene item pos_x pos_y scl_x scl_y rotation
-
-/item_set_visible scene item visibility(bool)
-/item_delete scene item
+/item_set_alignment scene item alignment(int)
+/item_set_crop      scene item left right top bottom
+/item_set_visible   scene item visibility(bool)
+/item_remove        scene item
 /item_reference from_scene to_scene item
 /item_duplicate from_scene to_scene item
-/item_set_alignment scene item alignment(int)
-/item_set_crop scene item left right top bottom
 ```
 #### Item tween
-Item position, scale and rotation interpolated transformation, with duration, delay and ease type. To change item properties to a new position/scale/rotation, use `to_pos`, `to_scl`, `to_rot` and `to_transform`. If you want to set it from an specific position/scale/rotation to a new position/scale/rotation, use `from_to_pos`, `from_to_scl`, `from_to_rot` and `from_to_transform`.
+Item position, scale and rotation interpolated transformation, with duration, delay and ease type.
+- To change item properties to a new position/scale/rotation, use `to_pos`, `to_scl`, `to_rot` and `to_transform`.
+- If you want to set it from an specific position/scale/rotation to a new position/scale/rotation, use `from_to_pos`, `from_to_scl`, `from_to_rot` and `from_to_transform`.
+- `duration` and `delay` are in miliseconds.
+- Up to `duration` is required. `delay` and `ease_type` are optionals, but it has to be in that order and `ease_type` can't be alone: if you want to send `ease_type` value, you have to send `0` as delay.
+- `ease_type` could be `linear` (default), `inQuad`, `outQuad`, `inOutQuad`, `inCubic`, `outCubic` or `inOutCubic`.
 ```
-/item_tween to_pos scene item to_pos_x to_pos_y duration delay ease_type
-/item_tween to_scl scene item to_scl_x to_scl_y duration delay ease_type
-/item_tween to_rot scene item to_rot duration delay ease_type
+/item_tween to_pos       scene item to_pos_x to_pos_y duration delay ease_type
+/item_tween to_scl       scene item to_scl_x to_scl_y duration delay ease_type
+/item_tween to_rot       scene item to_rot duration delay ease_type
 /item_tween to_transform scene item to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration delay ease_type
 
-/item_tween from_to_pos scene item from_pos_x from_pos_y to_pos_x to_pos_y duration delay ease_type
-/item_tween from_to_scl scene item from_scl_x from_scl_y to_scl_x to_scl_y duration delay ease_type
-/item_tween from_to_rot scene item from_rotation to_rotation duration delay ease_type
+/item_tween from_to_pos       scene item from_pos_x from_pos_y to_pos_x to_pos_y duration delay ease_type
+/item_tween from_to_scl       scene item from_scl_x from_scl_y to_scl_x to_scl_y duration delay ease_type
+/item_tween from_to_rot       scene item from_rotation to_rotation duration delay ease_type
 /item_tween from_to_transform scene item from_pos_x from_pos_y from_scl_x from_scl_y from_rotation to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration delay ease_type
 ```
-Up to `duration` is required. `delay` and `ease_type` are optionals, but it has to be in that order and `ease_type` can't be alone: if you want to send `ease_type` value, you have to send `0` as delay.
-`ease_type` could be `linear` (default), `inQuad`, `outQuad`, `inOutQuad`, `inCubic`, `outCubic` or `inOutCubic`.
-
 #### Sources:
 ```
-/source_set_image_file source filename(string)
-/source_set_image_file source filename(string)
-/source_set_video_file source filename(string)
-/source_set_text source text(string)
-/source_set_text_size source size(int)
-/source_set_volume source volume(float)
-/source_set_opacity source opacity(int)
+/source_set_image_file     source filename(string)
+/source_set_image_file     source filename(string)
+/source_set_video_file     source filename(string)
+/source_set_text           source text(string)
+/source_set_text_size      source size(int)
+/source_set_volume         source volume(float)
+/source_set_opacity        source opacity(int)
 /source_filter_set_enabled source filter enabled(bool)
-/source_filter_set_value source filter setting(string) value(int)
-/source_set_bri_sat_hue source bri(int) sat(int) hue(int)
-/source_set_hue source hue(int)
-/source_set_lut_file source filter lut_filename(string)
+/source_filter_set_value   source filter setting(string) value(int)
+/source_set_bri_sat_hue    source bri(int) sat(int) hue(int)
+/source_set_hue            source hue(int)
+/source_set_lut_file       source filter lut_filename(string)
 ```
-
-
 ### Examples of sending OSC messages (Client)
 Not yet developed or documented. The only part that it is done is what OSC Sender for OBS script has.
