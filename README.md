@@ -3,15 +3,16 @@ OBS Python scripts that allows to receive/send OSC messages from/to OBS and from
 
 It is based on OBS script [OSC Sender for OBS](https://obsproject.com/forum/threads/osc-sender-for-obs.100618/), but this time, it can receive messages (original doesn't). It uses [python-osc](https://github.com/attwad/python-osc/ "Github attwad/python-osc") and it neither use [obs-websockets](https://github.com/Palakis/obs-websocket "Github Palakis/obs-websocket") nor [obs-websockets-py](https://github.com/Elektordi/obs-websocket-py "Github Elektordi/obs-websocket-py"). 
 
-**IMPORTANT**: pythonosc server code needs Python 3.7 and OBS is originally done in 3.6. OBS has to be started with `LD_PRELOAD=/<path>/libpython3.8.so`. It is explained in this [Pull Request comment](https://github.com/obsproject/obs-studio/pull/3335#issuecomment-760255757)
-
 #### Requirements
 - [python-osc](https://github.com/attwad/python-osc/)
-- [PIL](https://pillow.readthedocs.io/en/stable/index.html) for image check (source_set_image_file). It is not required, but you have to modify the code to take it off.
+- **IMPORTANT**: pythonosc server code needs Python 3.7 and OBS is originally done in 3.6. OBS has to be started with `LD_PRELOAD=/<path>/libpython3.8.so`. It is explained in this [Pull Request comment](https://github.com/obsproject/obs-studio/pull/3335#issuecomment-760255757)
+- [PIL](https://pillow.readthedocs.io/en/stable/index.html) for image check (`/source_set_image_file`). It is not required, but you have to modify the code to take it off.
 
+```
 Default Server Port: 10008
 Default Client Port: 10000
 Default Client IP: 127.0.0.1
+```
 You can change these in Configuration.
 
 ### Examples of receiving OSC messages (Server)
