@@ -29,6 +29,7 @@ _/item_tween to_pos main ball 960 540 2000 500 outQuad_
 `/scene_change scene`
 #### Items: position, scale, rotation, visibility, crop, alignment, delete, duplication, reference, etc.
 ```
+# Change transform properties
 /item_set_pos       scene item pos_x pos_y
 /item_set_scl       scene item scl_x scl_y
 /item_set_rot       scene item rotation
@@ -36,7 +37,9 @@ _/item_tween to_pos main ball 960 540 2000 500 outQuad_
 /item_set_alignment scene item alignment(int)
 /item_set_crop      scene item left right top bottom
 /item_set_visible   scene item visibility(bool)
+# Remove item
 /item_remove        scene item
+# Duplicating/referencing items
 /item_reference from_scene to_scene item
 /item_duplicate from_scene to_scene item
 ```
@@ -48,24 +51,31 @@ Item position, scale and rotation interpolated transformation, with duration, de
 - Up to `duration` is required. `delay` and `ease_type` are optionals, but it has to be in that order and `ease_type` can't be alone: if you want to send `ease_type` value, you have to send `0` as delay.
 - `ease_type` could be `linear` (default), `inQuad`, `outQuad`, `inOutQuad`, `inCubic`, `outCubic` or `inOutCubic`.
 ```
+# Only target
 /item_tween to_pos       scene item to_pos_x to_pos_y duration delay ease_type
 /item_tween to_scl       scene item to_scl_x to_scl_y duration delay ease_type
 /item_tween to_rot       scene item to_rot duration delay ease_type
 /item_tween to_transform scene item to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration delay ease_type
-
+# Origin and target
 /item_tween from_to_pos       scene item from_pos_x from_pos_y to_pos_x to_pos_y duration delay ease_type
 /item_tween from_to_scl       scene item from_scl_x from_scl_y to_scl_x to_scl_y duration delay ease_type
 /item_tween from_to_rot       scene item from_rotation to_rotation duration delay ease_type
 /item_tween from_to_transform scene item from_pos_x from_pos_y from_scl_x from_scl_y from_rotation to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration delay ease_type
 ```
 #### Sources:
+To change a source setting, you don't have to send the scene name, as a source will change in every scene where it is referenced.
 ```
-/source_set_image_file     source filename(string)
+# Files
 /source_set_image_file     source filename(string)
 /source_set_video_file     source filename(string)
+# Text
 /source_set_text           source text(string)
 /source_set_text_size      source size(int)
+# Image slide
+/source_set_slide_time     source time_between_slides(int)
+# Audio
 /source_set_volume         source volume(float)
+# Filters
 /source_set_opacity        source opacity(int)
 /source_filter_set_enabled source filter enabled(bool)
 /source_filter_set_value   source filter setting(string) value(int)
@@ -74,4 +84,4 @@ Item position, scale and rotation interpolated transformation, with duration, de
 /source_set_lut_file       source filter lut_filename(string)
 ```
 ### Examples of sending OSC messages (Client)
-Not yet developed or documented. The only part that it is done is what OSC Sender for OBS script has.
+Not yet developed or documented. It only sends a message to `/init` with a `1` when script loads. Also, when a source that name starts with `/` is activated, it sends a message to `/name_of_item` with a `1` as message (as **OSC Sender for OBS** script does).
