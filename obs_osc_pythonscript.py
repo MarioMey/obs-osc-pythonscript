@@ -1,3 +1,24 @@
+"""
+OBS-OSC-PythonScript 0.1 (https://github.com/MarioMey/obs-osc-pythonscript)
+
+It's an OBS Python scripts that allows to receive/send OSC messages from/to 
+OBS and from/to another OSC sending capable software, like PureData, 
+MobMuPlat, TouchOSC, etc. It is based on OBS script OSC Sender for OBS, but
+this time, it can receive messages(original doesn't). It uses python-osc and 
+it neither use obs-websockets nor obs-websockets-py.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import time, threading
 import obspython as obs
 
