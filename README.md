@@ -30,30 +30,39 @@ _/item_tween to_pos main ball 960 540 2000 outQuad_
 /item_duplicate from_scene to_scene item
 /item_set_alignment scene item alignment(int)
 /item_set_crop scene item left right top bottom
-
-/item_tween to_pos scene item to_pos_x to_pos_y duration ease_type
-/item_tween to_scl scene item to_scl_x to_scl_y duration ease_type
-/item_tween to_rot scene item to_rot duration ease_type
-/item_tween to_tranform scene item to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration ease_type
-
-/item_tween from_to_pos scene item from_pos_x from_pos_y to_pos_x to_pos_y duration ease_type
-/item_tween from_to_scl scene item from_scl_x from_scl_y to_scl_x to_scl_y duration ease_type
-/item_tween from_to_rot scene item from_rotation to_rotation duration ease_type
-/item_tween fromto_tranform scene item from_pos_x from_pos_y from_scl_x from_scl_y from_rotation to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration ease_type
 ```
-`ease_type` argument is optional. It could be `linear` (default), `inQuad`, `outQuad`, `inOutQuad`, `inCubic`, `outCubic`, `inOutCubic`.
+#### Item tween
+Item position, scale and rotation interpolated transformation, with duration, delay and ease type. To change item properties to a new position/scale/rotation, use `to_pos`, `to_scl`, `to_rot` and `to_transform`. If you want to set it from an specific position/scale/rotation to a new position/scale/rotation, use `from_to_pos`, `from_to_scl`, `from_to_rot` and `from_to_transform`.
+```
+/item_tween to_pos scene item to_pos_x to_pos_y duration delay ease_type
+/item_tween to_scl scene item to_scl_x to_scl_y duration delay ease_type
+/item_tween to_rot scene item to_rot duration delay ease_type
+/item_tween to_transform scene item to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration delay ease_type
+
+/item_tween from_to_pos scene item from_pos_x from_pos_y to_pos_x to_pos_y duration delay ease_type
+/item_tween from_to_scl scene item from_scl_x from_scl_y to_scl_x to_scl_y duration delay ease_type
+/item_tween from_to_rot scene item from_rotation to_rotation duration delay ease_type
+/item_tween from_to_transform scene item from_pos_x from_pos_y from_scl_x from_scl_y from_rotation to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration delay ease_type
+```
+Up to `duration` is required. `delay` and `ease_type` are optionals, but it has to be in that order and `ease_type` can't be alone: if you want to send `ease_type` value, you have to send `0` as delay.
+`ease_type` could be `linear` (default), `inQuad`, `outQuad`, `inOutQuad`, `inCubic`, `outCubic` or `inOutCubic`.
 
 #### Sources:
 ```
 /source_set_image_file source filename(string)
-/source_set_volume  source volume(float)
+/source_set_image_file source filename(string)
+/source_set_video_file source filename(string)
+/source_set_text source text(string)
+/source_set_text_size source size(int)
+/source_set_volume source volume(float)
 /source_set_opacity source opacity(int)
 /source_filter_set_enabled source filter enabled(bool)
-/source_filter_set_value source filter slider value(int)
+/source_filter_set_value source filter setting(string) value(int)
 /source_set_bri_sat_hue source bri(int) sat(int) hue(int)
-/source_set_hue_shift source hue_shift(int)
-/source_set_text source text(string)
+/source_set_hue source hue(int)
+/source_set_lut_file source filter lut_filename(string)
 ```
+
 
 ### Examples of sending OSC messages (Client)
 Not yet developed or documented. The only part that it is done is what OSC Sender for OBS script has.
