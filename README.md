@@ -5,6 +5,15 @@ It is based on OBS script [OSC Sender for OBS](https://obsproject.com/forum/thre
 
 **IMPORTANT**: pythonosc server code needs Python 3.7 and OBS is originally done in 3.6. OBS has to be started with `LD_PRELOAD=/<path>/libpython3.8.so`. It is explained in this [Pull Request comment](https://github.com/obsproject/obs-studio/pull/3335#issuecomment-760255757)
 
+#### Requirements
+- [python-osc](https://github.com/attwad/python-osc/)
+- [PIL](https://pillow.readthedocs.io/en/stable/index.html) for image check (source_set_image_file). It is not required, but you have to modify the code to take it off.
+
+Default Server Port: 10008
+Default Client Port: 10000
+Default Client IP: 127.0.0.1
+You can change these in Configuration.
+
 ### Examples of receiving OSC messages (Server)
 The script opens a port in the computer and listen to incoming messages from another software. Messages are with 1 level address and some arguments, depend on the type of command. For example, to locate an item called "ball" in "main" scene, to x: 960 y: 540 (middle of FullHD), message is:
 
