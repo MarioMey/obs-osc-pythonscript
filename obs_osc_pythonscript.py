@@ -7,7 +7,6 @@ from obs_osc_api import (
 	consola_hslider, 
 	c1, c2, c3, 
 	c, 
-	client,
 	th
 )
 
@@ -47,9 +46,25 @@ from obs_osc_api import (
 from pythonosc import osc_message_builder
 from pythonosc import dispatcher
 from pythonosc import osc_server
+from pythonosc import udp_client
 
+clientPort = 10000
 serverPort = 10008
+clientIP = "127.0.0.1"
 server = None
+
+client = udp_client.SimpleUDPClient(clientIP, clientPort)
+client.send_message("/init", 1)
+
+def source_activated(cd):
+    global pleaseLog
+    source = obs.calldata_source(cd, "source")
+    if source is not None:
+        name = obs.obs_source_get_name(source)
+        if name[0] == "/":
+            client.send_message(name, 1)
+            if (pleaseLog):
+                print("send " + name)
 
 def handleOSC(address, args, data):
 	print(f'{address}, {args}, {data}')
@@ -159,25 +174,24 @@ def script_description():
 def script_properties():
 	#global props 
 	props = obs.obs_properties_create()
-	# obs.obs_properties_add_text(props, "host", "Host IP", obs.OBS_TEXT_DEFAULT)
-	# obs.obs_properties_add_int(props, "port", "Host port", 1, 400000, 1)
-	# obs.obs_properties_add_bool(props, "logOscOutput", "Log OSC output")
+	obs.obs_properties_add_text(props, "host", "Host IP", obs.OBS_TEXT_DEFAULT)
+	obs.obs_properties_add_int(props, "port", "Host port", 1, 400000, 1)
+	obs.obs_properties_add_bool(props, "logOscOutput", "Log OSC output")
 	obs.obs_properties_add_int(props, "serverPort", "Listen port", 1, 400000, 1)
 	return props
 
 def script_defaults(settings):
-	# obs.obs_data_set_default_string(settings, "host", targetIp)
-	# obs.obs_data_set_default_int(settings, "port", targetPort)
+	obs.obs_data_set_default_string(settings, "host", clientIP)
+	obs.obs_data_set_default_int(settings, "port", clientPort)
 	obs.obs_data_set_default_int(settings, "serverPort", serverPort)
 
 
 def script_load(settings):
-	
-	# sh = obs.obs_get_signal_handler()
-	# obs.signal_handler_connect(sh, "source_activate", source_activated)
-	# obs.signal_handler_connect(sh, "source_deactivate", source_deactivated)
-
 	global despachante
+	
+	sh = obs.obs_get_signal_handler()
+	obs.signal_handler_connect(sh, "source_activate", source_activated)
+
 	despachante = dispatcher.Dispatcher()
 
 	despachante.map("/scene_change", scene_change)
@@ -213,6 +227,8 @@ def script_load(settings):
 
 
 def script_unload():
+	global server
+	
 	print(f'Script_unload')
 	global server
 	server.server_close()
@@ -221,7 +237,7 @@ def script_unload():
 def script_update(settings):
 	global host
 	global port
-	# global client
+	global client
 	global server
 	global pleaseLog
 
@@ -229,9 +245,8 @@ def script_update(settings):
 	host         = obs.obs_data_get_string(settings, "host")
 	port         = obs.obs_data_get_int(settings, "port")
 
-	# Client
-	# client = udp_client.SimpleUDPClient(host, port)
-	# print("target set to "+host+":"+str(port)+"")
+	client = udp_client.SimpleUDPClient(host, port)
+	print("target set to "+host+":"+str(port)+"")
 
 	# Server
 	serverPort = obs.obs_data_get_int(settings, "serverPort")
@@ -239,7 +254,7 @@ def script_update(settings):
 		server.server_close()
 	except:
 		print('*Server not created yet')
-		# raise
+
 	server = osc_server.BlockingOSCUDPServer(("127.0.0.1", serverPort), despachante)
 	th(server_th, [settings])
 

@@ -4,24 +4,12 @@ import obspython as obs
 
 import requests
 from io import BytesIO
-
-from pythonosc import dispatcher
-from pythonosc import osc_server
-from pythonosc import udp_client
-
 from PIL import Image
 
 class gD:
 	def __init__(self):
 		self.verbose = 1
 globalDict = gD()
-
-targetIp = "127.0.0.1"
-targetPort = 10000
-
-client = udp_client.SimpleUDPClient(targetIp, targetPort)
-client.send_message("/init", 1)
-
 
 class Color:
 	def __init__(self):
