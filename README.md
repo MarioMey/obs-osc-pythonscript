@@ -1,6 +1,8 @@
 ## OBS-OSC-PythonScript 0.1
 OBS Python scripts that allows to receive/send OSC messages from/to OBS and from/to another OSC sending capable software, like PureData, MobMuPlat, TouchOSC, etc.
 
+OBS-OSC-PythonScript in **not yet approved** [OBS Python Resource](https://obsproject.com/forum/resources/obs-osc-pythonscript-0-1.1200/).
+
 It is based on OBS script [OSC Sender for OBS](https://obsproject.com/forum/threads/osc-sender-for-obs.100618/), but this time, it can receive messages (original doesn't). It uses [python-osc](https://github.com/attwad/python-osc/ "Github attwad/python-osc") and it neither use [obs-websockets](https://github.com/Palakis/obs-websocket "Github Palakis/obs-websocket") nor [obs-websockets-py](https://github.com/Elektordi/obs-websocket-py "Github Elektordi/obs-websocket-py"). 
 
 #### Requirements
