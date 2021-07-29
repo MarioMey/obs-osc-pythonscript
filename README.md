@@ -74,7 +74,7 @@ Item position, scale and rotation interpolated transformation, with duration, de
 - If you want to set it from an specific position/scale/rotation to a new position/scale/rotation, use `from_to_pos`, `from_to_scl`, `from_to_rot` and `from_to_transform`.
 - `duration` and `delay` are in miliseconds.
 - Up to `duration` is required. `delay` and `ease_type` are optionals, but it has to be in that order and `ease_type` can't be alone: if you want to send `ease_type` value, you have to send `0` as delay.
-- `ease_type` could be `linear` (default), `inQuad`, `outQuad`, `inOutQuad`, `inCubic`, `outCubic` or `inOutCubic`.
+- `ease_type` could be `LinearInOut` (default), `QuadEaseInOut`, `QuadEaseIn`, `QuadEaseOut`, `CubicEaseInOut`, `CubicEaseIn`, `CubicEaseOut`, `QuarticEaseInOut`, `QuarticEaseIn`, `QuarticEaseOut`, `QuinticEaseInOut`, `QuinticEaseIn`, `QuinticEaseOut`, `SineEaseInOut`, `SineEaseIn`, `SineEaseOut`, `CircularEaseIn`, `CircularEaseInOut`, `CircularEaseOut`, `ExponentialEaseInOut`, `ExponentialEaseIn`, `ExponentialEaseOut`, `ElasticEaseIn`, `ElasticEaseInOut`, `ElasticEaseOut`, `BackEaseIn`, `BackEaseInOut`, `BackEaseOut`, `BounceEaseIn`, `BounceEaseInOut` or `BounceEaseOut` (ease equations taken from https://github.com/semitable/easing-functions)
 ```
 # Only target
 /item_tween to_pos       scene item to_pos_x to_pos_y duration delay ease_type
