@@ -117,7 +117,7 @@ To change a source setting, you don't have to send the scene name, as a source w
 /source_capture_window
 ```
 #### Source tween
-For the moment, it can change a value of a setting of a filter of a source. For example: opacity.` or `inOutCubic`.
+For the moment, it can change a value of a setting of a filter of a source. For example: opacity.
 ```
 /source_tween to_value source_name filter_name setting to_value duration delay ease_type
 /source_tween from_to_value source_name filter_name setting from_value to_value duration delay ease_type
