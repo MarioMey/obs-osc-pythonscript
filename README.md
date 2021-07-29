@@ -125,3 +125,13 @@ For the moment, it can change a value of a setting of a filter of a source. For 
 
 ### Examples of sending OSC messages (Client)
 Not yet developed or documented. It only sends a message to `/init` with a `1` when script loads. Also, when a source that name starts with `/` is activated, it sends a message to `/name_of_item` with a `1` as message (as **OSC Sender for OBS** script does).
+
+# TEST
+You can use osc2script.py to send OSC messages to the script. It has a list of preset words to use Tab key to autocomplete. Just write something like: 
+```
+mario@debian:~$ python3.7 osc2script.py
+Envío OSC a script de OBS. ^D para salir. Ej:
+/item_set_pos main C920 100 100
+
+> /source_tween value image_source color_correction opacity 1 1000
+```
