@@ -1,9 +1,44 @@
 #!/usr/bin/env python3
 
 import obspython as obs
-import random, time, string, json
+import random, time, string, json, math
 from contextlib import contextmanager
 
+from easing_functions import (
+    LinearInOut,
+    QuadEaseInOut,
+    QuadEaseIn,
+    QuadEaseOut,
+    CubicEaseInOut,
+    CubicEaseIn,
+    CubicEaseOut,
+    QuarticEaseInOut,
+    QuarticEaseIn,
+    QuarticEaseOut,
+    QuinticEaseInOut,
+    QuinticEaseIn,
+    QuinticEaseOut,
+    SineEaseInOut,
+    SineEaseIn,
+    SineEaseOut,
+    CircularEaseIn,
+    CircularEaseInOut,
+    CircularEaseOut,
+    ExponentialEaseInOut,
+    ExponentialEaseIn,
+    ExponentialEaseOut,
+    ElasticEaseIn,
+    ElasticEaseInOut,
+    ElasticEaseOut,
+    BackEaseIn,
+    BackEaseInOut,
+    BackEaseOut,
+    BounceEaseIn,
+    BounceEaseInOut,
+    BounceEaseOut,
+)
+
+# Try to load my personal file that it is not in this repository
 try:
 	from obs_api import (
 		th, c1, c2, c3, c4, c, 
@@ -11,7 +46,7 @@ try:
 		tobool, toint, tolist, tofloat
 		)
 except:
-	from obs_api_no_obs import(
+	from obs_osc_api import(
 		th, c1, c2, c3, c4, c,
 		consola, thread, globalDict,
 		tobool, toint, tolist, tofloat
@@ -338,18 +373,31 @@ def th_item_tween(scene_name, item_name, scene_item,
 			return
 		
 		elapsed_time = time.time()*1000 - init_time
-		pos_change_x = None if to_pos_x == None else to_pos_x - from_pos_x
-		pos_change_y = None if to_pos_y == None else to_pos_y - from_pos_y
-		scl_change_x = None if to_scl_x == None else to_scl_x - from_scl_x
-		scl_change_y = None if to_scl_y == None else to_scl_y - from_scl_y
-		rot_change   = None if to_rot   == None else to_rot   - from_rot
+		# pos_change_x = None if to_pos_x == None else to_pos_x - from_pos_x
+		# pos_change_y = None if to_pos_y == None else to_pos_y - from_pos_y
+		# scl_change_x = None if to_scl_x == None else to_scl_x - from_scl_x
+		# scl_change_y = None if to_scl_y == None else to_scl_y - from_scl_y
+		# rot_change   = None if to_rot   == None else to_rot   - from_rot
 		
 		# time, beginning position, change inposition, and duration
-		pos_x = None if to_pos_x == None else tween_eq(ease_type, elapsed_time, from_pos_x, pos_change_x, duration)
-		pos_y = None if to_pos_y == None else tween_eq(ease_type, elapsed_time, from_pos_y, pos_change_y, duration)
-		scl_x = None if to_scl_x == None else tween_eq(ease_type, elapsed_time, from_scl_x, scl_change_x, duration)
-		scl_y = None if to_scl_y == None else tween_eq(ease_type, elapsed_time, from_scl_y, scl_change_y, duration)
-		rot   = None if to_rot   == None else tween_eq(ease_type, elapsed_time, from_rot  , rot_change  , duration)
+		pos_x = None if to_pos_x == None else tween_eq(ease_type, elapsed_time, from_pos_x, to_pos_x, duration)
+		pos_y = None if to_pos_y == None else tween_eq(ease_type, elapsed_time, from_pos_y, to_pos_y, duration)
+		scl_x = None if to_scl_x == None else tween_eq(ease_type, elapsed_time, from_scl_x, to_scl_x, duration)
+		scl_y = None if to_scl_y == None else tween_eq(ease_type, elapsed_time, from_scl_y, to_scl_y, duration)
+		rot   = None if to_rot   == None else tween_eq(ease_type, elapsed_time, from_rot  , to_rot  , duration)
+
+		# pos_change_x = None if to_pos_x == None else to_pos_x - from_pos_x
+		# pos_change_y = None if to_pos_y == None else to_pos_y - from_pos_y
+		# scl_change_x = None if to_scl_x == None else to_scl_x - from_scl_x
+		# scl_change_y = None if to_scl_y == None else to_scl_y - from_scl_y
+		# rot_change   = None if to_rot   == None else to_rot   - from_rot
+		
+		# # time, beginning position, change inposition, and duration
+		# pos_x = None if to_pos_x == None else tween_eq(ease_type, elapsed_time, from_pos_x, pos_change_x, duration)
+		# pos_y = None if to_pos_y == None else tween_eq(ease_type, elapsed_time, from_pos_y, pos_change_y, duration)
+		# scl_x = None if to_scl_x == None else tween_eq(ease_type, elapsed_time, from_scl_x, scl_change_x, duration)
+		# scl_y = None if to_scl_y == None else tween_eq(ease_type, elapsed_time, from_scl_y, scl_change_y, duration)
+		# rot   = None if to_rot   == None else tween_eq(ease_type, elapsed_time, from_rot  , rot_change  , duration)
 
 		c4(f'TWEEN SCENEITEM TRANSFORM')
 		c4(f'   scene_name="{scene_name}", item_name="{item_name}",')
@@ -426,58 +474,117 @@ def th_item_tween(scene_name, item_name, scene_item,
 
 	c3(f'Terminó item tween "{scene_name}" "{item_name}"')
 
-# TWEEN - Ecuaciones
+# TWEEN - Ecuaciones from https://github.com/semitable/easing-functions
 def tween_eq(ease_type, t, b, c, d):
 	#~ if t >= 0:
-	if ease_type == 'linear':
-		return c * t / d + b
-	elif ease_type == 'inQuad':
-		t /= d
-		return c * t * t + b
-	elif ease_type == 'outQuad':
-		t /= d
-		return - c * t * (t - 2) + b
-	elif ease_type == 'inOutQuad':
-		t /= d / 2
-		if (t < 1):
-			return c / 2 * t * t + b
-		t -= 1
-		return -c / 2 * ((t) * (t - 2) - 1) + b
-	elif ease_type == 'inCubic':
-		t /= d
-		return c * t * t * t + b
-	elif ease_type == 'outCubic':
-		t /= d
-		t -= 1
-		return c * (t * t * t + 1) + b
-	elif ease_type == 'inOutCubic':
-		t /= d / 2
-		if (t < 1):
-			return c / 2 * t * t * t + b
-		t -= 2
-		return c / 2 * (t * t * t + 2) + b
+	if ease_type in ['linear', 'LinearInOut']:
+		a = LinearInOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inQuad', 'QuadEaseIn']:
+		a = QuadEaseIn(b, c, d)
+		return a(t)
+	elif ease_type in ['outQuad', 'QuadEaseOut']:
+		a = QuadEaseOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inOutQuad', 'QuadEaseInOut']:
+		a = QuadEaseInOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inCubic', 'CubicEaseIn']:
+		a = CubicEaseIn(b, c, d)
+		return a(t)
+	elif ease_type in ['outCubic', 'CubicEaseOut']:
+		a = CubicEaseOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inOutCubic', 'CubicEaseInOut']:
+		a = CubicEaseInOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inQuartic', 'QuarticEaseIn']:
+		a = QuarticEaseIn(b, c, d)
+		return a(t)
+	elif ease_type in ['outQuartic', 'QuarticEaseOut']:
+		a = QuarticEaseOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inOutQuartic', 'QuarticEaseInOut']:
+		a = QuarticEaseInOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inQuintic', 'QuinticEaseIn']:
+		a = QuinticEaseIn(b, c, d)
+		return a(t)
+	elif ease_type in ['outQuintic', 'QuinticEaseOut']:
+		a = QuinticEaseOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inOutQuintic', 'QuinticEaseInOut']:
+		a = QuinticEaseInOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inSine', 'SineEaseIn']:
+		a = SineEaseIn(b, c, d)
+		return a(t)
+	elif ease_type in ['outSine', 'SineEaseOut']:
+		a = SineEaseOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inOutSine', 'SineEaseInOut']:
+		a = SineEaseInOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inCircular', 'CircularEaseIn']:
+		a = CircularEaseIn(b, c, d)
+		return a(t)
+	elif ease_type in ['outCircular', 'CircularEaseOut']:
+		a = CircularEaseOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inOutCircular', 'CircularEaseInOut']:
+		a = CircularEaseInOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inExponential', 'ExponentialEaseIn']:
+		a = ExponentialEaseIn(b, c, d)
+		return a(t)
+	elif ease_type in ['outExponential', 'ExponentialEaseOut']:
+		a = ExponentialEaseOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inOutExponential', 'ExponentialEaseInOut']:
+		a = ExponentialEaseInOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inElastic', 'ElasticEaseIn']:
+		a = ElasticEaseIn(b, c, d)
+		return a(t)
+	elif ease_type in ['outElastic', 'ElasticEaseOut']:
+		a = ElasticEaseOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inOutElastic', 'ElasticEaseInOut']:
+		a = ElasticEaseInOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inBack', 'BackEaseIn']:
+		a = BackEaseIn(b, c, d)
+		return a(t)
+	elif ease_type in ['outBack', 'BackEaseOut']:
+		a = BackEaseOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inOutBack', 'BackEaseInOut']:
+		a = BackEaseInOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inBounce', 'BounceEaseIn']:
+		a = BounceEaseIn(b, c, d)
+		return a(t)
+	elif ease_type in ['outBounce', 'BounceEaseOut']:
+		a = BounceEaseOut(b, c, d)
+		return a(t)
+	elif ease_type in ['inOutBounce', 'BounceEaseInOut']:
+		a = BounceEaseInOut(b, c, d)
+		return a(t)
 
 def write_tween_sceneitems():
 	while True:
-		with open("/home/mario/meytv/obs-scripts/tween_sceneitems.watch", "w") as outfile:
-			new_dict = {'sceneitems':{}, 'sources':{}}
-
-			for v in globalDict.tween_sceneitems.values():
-				if 'player' in v['item_name']:
-					new_dict['sceneitems'][v['item_name']] = {
-						'extra'  : v['extra'].author.name,
-						'pos_x' : v['pos_x'],
-						'pos_y' : v['pos_y']   }
-
-			for v in globalDict.tween_sources.values():
-				new_dict['sources'][v['source_name']] = {
-					'source_name': v['source_name'],
-					'filter'     : v['filter_name'],
-					'setting'    : v['setting'],
-					'value'      : v['value'],
-					}
-
-			json.dump(new_dict, outfile, default=str, sort_keys=True, indent=2, ensure_ascii=False)
-		# time.sleep(0.0625) # 16fps
+		with open("/home/mario/meytv/obs-scripts/tween_items_sources.watch", "w") as outfile:
+			new_dict = {
+				'sceneitems': globalDict.tween_sceneitems, 
+				'sources':    globalDict.tween_sources,
+				}
+			json.dump(
+				new_dict,
+				outfile,
+				default=str,
+				sort_keys=True,
+				indent=2,
+				ensure_ascii=False
+				)
 		time.sleep(1)        # 1fps
 thread(write_tween_sceneitems)
