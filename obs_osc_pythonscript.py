@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OBS-OSC-PythonScript 0.1 (https://github.com/MarioMey/obs-osc-pythonscript)
+OBS-OSC-PythonScript (https://github.com/MarioMey/obs-osc-pythonscript)
 
 It's an OBS Python scripts that allows to receive/send OSC messages from/to 
 OBS and from/to another OSC sending capable software, like PureData, 
@@ -19,6 +19,16 @@ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
+
+__author__ = "Mario Mey"
+__contact__ = "mariomey@gmail.com"
+__credits__ = []
+__date__ = "2021/07/29"
+__deprecated__ = False
+__license__ = "GPLv3"
+__maintainer__ = "developer"
+__status__ = "Production"
+__version__ = "0.3"
 
 import time, threading
 import obspython as obs
