@@ -1,6 +1,6 @@
 ![oscobs-logo](https://user-images.githubusercontent.com/4954109/127521780-a654f51c-ec5f-450a-93af-c0c0de1ad81c.png)
 
-## OBS-OSC-PythonScript 0.2
+## OBS-OSC-PythonScript 0.3
 OBS Python scripts that allows to receive/send OSC messages from/to OBS and from/to another OSC sending capable software, like PureData, MobMuPlat, TouchOSC, etc.
 
 OBS-OSC-PythonScript in **not yet approved** [OBS Python Resource](https://obsproject.com/forum/resources/obs-osc-pythonscript-0-1.1200/).
