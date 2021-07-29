@@ -1,4 +1,4 @@
-## OBS-OSC-PythonScript 0.1
+## OBS-OSC-PythonScript 0.2
 OBS Python scripts that allows to receive/send OSC messages from/to OBS and from/to another OSC sending capable software, like PureData, MobMuPlat, TouchOSC, etc.
 
 OBS-OSC-PythonScript in **not yet approved** [OBS Python Resource](https://obsproject.com/forum/resources/obs-osc-pythonscript-0-1.1200/).
@@ -29,6 +29,10 @@ Another example: to make the same ball "move" (interpolation included) from wher
 
 _/item_tween to_pos main ball 960 540 2000 500 outQuad_
 
+Fade in (opacity) a source with already "Color Correction V2" filter applied. Also, the setting that will be modified **has** to be changed by hand at least once. This is the way that OBS writes setting to JSON file. Then, you can change it with /source_tween. This example takes opacity from the value it was to 0.3 in 1000ms.
+
+_/source_tween to_value main ball colorcorrection opacity 0.3 1000_
+
 ### List of commands
 #### Scenes: changing.
 `/scene_change scene`
@@ -42,11 +46,25 @@ _/item_tween to_pos main ball 960 540 2000 500 outQuad_
 /item_set_alignment scene item alignment(int)
 /item_set_crop      scene item left right top bottom
 /item_set_visible   scene item visibility(bool)
+
 # Remove item
 /item_remove        scene item
+
 # Duplicating/referencing items
 /item_reference from_scene to_scene item
 /item_duplicate from_scene to_scene item
+
+# Not yet documented
+/item_get_transform
+/item_set_scl_filter
+/item_get_order_index
+/item_set_order_index
+/item_swap_order_index
+/item_set_private_setting
+/item_create_group
+/item_create_text
+/item_create_image
+/item_create_video
 ```
 #### Item tween
 Item position, scale and rotation interpolated transformation, with duration, delay and ease type.
@@ -87,6 +105,21 @@ To change a source setting, you don't have to send the scene name, as a source w
 /source_set_bri_sat_hue    source bri(int) sat(int) hue(int)
 /source_set_hue            source hue(int)
 /source_set_lut_file       source filter lut_filename(string)
+
+# Not yet docummented
+/source_get_settings
+/source_set_setting
+/source_filter_set_value
+/source_filter_set_enabled
+/source_filter_get_settings
+/source_capture_window
 ```
+#### Source tween
+For the moment, it can change a value of a setting of a filter of a source. For example: opacity.` or `inOutCubic`.
+```
+/source_tween to_value source_name filter_name setting to_value duration delay ease_type
+/source_tween from_to_value source_name filter_name setting from_value to_value duration delay ease_type
+```
+
 ### Examples of sending OSC messages (Client)
 Not yet developed or documented. It only sends a message to `/init` with a `1` when script loads. Also, when a source that name starts with `/` is activated, it sends a message to `/name_of_item` with a `1` as message (as **OSC Sender for OBS** script does).
