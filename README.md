@@ -9,7 +9,7 @@ It is based on OBS script [OSC Sender for OBS](https://obsproject.com/forum/thre
 
 #### Requirements
 - [python-osc](https://github.com/attwad/python-osc/)
-- **IMPORTANT**: pythonosc server code needs Python 3.7 and OBS is originally done in 3.6. OBS has to be started with `LD_PRELOAD=/<path>/libpython3.8.so`. It is explained in this [Pull Request comment](https://github.com/obsproject/obs-studio/pull/3335#issuecomment-760255757)
+- **IMPORTANT**: pythonosc server code needs Python 3.7 and OBS is originally done in 3.6. OBS has to be started with `LD_PRELOAD=/<path>/libpython3.7.so`. It is explained in this [Pull Request comment](https://github.com/obsproject/obs-studio/pull/3335#issuecomment-760255757)
 - [PIL](https://pillow.readthedocs.io/en/stable/index.html) for image check (used by `/source_set_image_file`). It is not required, but you have to modify the code to take it off.
 
 ## Instructions
