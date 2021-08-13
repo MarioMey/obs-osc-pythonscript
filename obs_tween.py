@@ -1,4 +1,30 @@
 #!/usr/bin/env python3
+"""
+OBS-TWEEN (https://github.com/MarioMey/obs-osc-pythonscript)
+SceneItem position, scale, size and rotation interpolated transformation,
+and source properties values change on-the-fly with duration, delay and ease type.
+(ease equations taken from https://github.com/semitable/easing-functions)
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+__author__ = "Mario Mey"
+__contact__ = "mariomey@gmail.com"
+__credits__ = []
+__date__ = "2021/08/13"
+__deprecated__ = False
+__license__ = "GPLv3"
+__maintainer__ = "developer"
+__status__ = "Production"
+__version__ = "0.3"
 
 import obspython as obs
 import random, time, string, json, math
@@ -38,13 +64,14 @@ from easing_functions import (
     BounceEaseOut,
 )
 
-# Try to load my personal file that it is not in this repository
 try:
 	from obs_api import (
 		th, c1, c2, c3, c4, c, 
 		consola, thread, globalDict, 
-		tobool, toint, tolist, tofloat
+		tobool, toint, tolist, tofloat,
 		)
+	import obs_api
+
 except:
 	from obs_osc_api import(
 		th, c1, c2, c3, c4, c,
@@ -118,7 +145,8 @@ def source_tween(unused_addr,
 
 	with ExitStack() as stack:
 		if not private: source = stack.enter_context(source_auto_release(source_name))
-		else:           source = globals()[source_name]
+		# else:           source = globals()[source_name]
+		else:           source = getattr(obs_api, source_name)
 		
 		if source:
 			filter_ = stack.enter_context(get_filter(source, filter_name))
@@ -154,12 +182,12 @@ def source_tween(unused_addr,
 					'eval_':       eval_,
 				}
 				# TIENE QUE IR TH()
-				th_source_tween(
+				th(th_source_tween, [
 					source_name,
 					filter_name, setting,
 					from_value, to_value,
 					init_time, duration, delay, ease_type,
-					code, fps, extra, eval_, private)
+					code, fps, extra, eval_, private])
 
 			else: print(f'Filter no existe: {filter_name}')
 		else: print(f'Source no existe: {source_name}')
@@ -179,7 +207,9 @@ def th_source_tween(
 	with ExitStack() as stack:
 
 		if not private: source = stack.enter_context(source_auto_release(source_name))
-		else:           source = globals()[source_name]
+		# else:           source = globals()[source_name]
+		else:           source = getattr(obs_api, source_name)
+
 		if source:
 			filter_ = stack.enter_context(get_filter(source, filter_name))
 			if filter_:
@@ -257,37 +287,46 @@ def item_tween(unused_addr,
 	from_scl_x=None,       to_scl_x=None,
 	from_scl_y=None,       to_scl_y=None,
 	from_rot=None,         to_rot=None,
+	from_width=None,       to_width=None,
+	from_height=None,      to_height=None,
 	alignment=None,        visible=True,
 	duration=1000,         delay=0,
 	ease_type='outQuad',   fps=30,
-	extra=None,            eval_=None): 
+	extra=None,            eval_=None,
+	private=False):
 
 	c2(f'item_tween(scene_name="{scene_name}", item_name="{item_name}",')
 	c2(f'	duration={duration}, delay={delay}, ease_type={ease_type},')
 	c2(f'	from_pos_x={from_pos_x}, from_pos_y={from_pos_y},')
-	c2(f'	from_scl_x={from_scl_x}, from_scl_y={from_scl_y},')
-	c2(f'	from_rot={from_rot},')
 	c2(f'	to_pos_x={to_pos_x}, to_pos_y={to_pos_y},')
+	c2(f'	from_scl_x={from_scl_x}, from_scl_y={from_scl_y},')
 	c2(f'	to_scl_x={to_scl_x}, to_scl_y={to_scl_y},')
+	c2(f'	from_rot={from_rot},')
 	c2(f'	to_rot={to_rot},')
+	c2(f'	from_width={from_width}, from_height={from_height},')
+	c2(f'	to_width={to_width}, to_height={to_height},')
 	c2(f'	alignment={alignment}, visible={visible},')
 	c2(f'	fps={fps}, extra={extra}), eval_={eval_})')
 
-	duration   = toint(duration)
-	delay      = toint(delay)
-	from_pos_x = toint(from_pos_x)
-	from_pos_y = toint(from_pos_y)
-	from_scl_x = tofloat(from_scl_x)
-	from_scl_y = tofloat(from_scl_y)
-	from_rot   = toint(from_rot)
-	to_pos_x   = toint(to_pos_x)
-	to_pos_y   = toint(to_pos_y)
-	to_scl_x   = tofloat(to_scl_x)
-	to_scl_y   = tofloat(to_scl_y)
-	to_rot     = tofloat(to_rot)
-	alignment  = toint(alignment)
-	visible    = tobool(visible)
-	fps        = toint(fps)
+	duration    = toint(duration)
+	delay       = toint(delay)
+	from_pos_x  = toint(from_pos_x)
+	from_pos_y  = toint(from_pos_y)
+	from_scl_x  = tofloat(from_scl_x)
+	from_scl_y  = tofloat(from_scl_y)
+	from_rot    = toint(from_rot)
+	from_width  = toint(from_width)
+	from_height = toint(from_height)
+	to_pos_x    = toint(to_pos_x)
+	to_pos_y    = toint(to_pos_y)
+	to_scl_x    = tofloat(to_scl_x)
+	to_scl_y    = tofloat(to_scl_y)
+	to_rot      = tofloat(to_rot)
+	to_width    = toint(to_width)
+	to_height   = toint(to_height)
+	alignment   = toint(alignment)
+	visible     = tobool(visible)
+	fps         = toint(fps)
 
 	scene, scenes_list = get_scene_context(scene_name)
 	if not scene:
@@ -298,13 +337,15 @@ def item_tween(unused_addr,
 		
 		if item_name.startswith('id:'):
 			scene_item = obs.obs_scene_find_sceneitem_by_id(scene, int(item_name[3:]))
-			if scene_item: item_id = int(item_name[3:])
+			if scene_item:
+				item_id = int(item_name[3:])
 		else:
 			scene_item = obs.obs_scene_find_source(scene, item_name)
-			if scene_item: item_id = obs.obs_sceneitem_get_id(scene_item)
-
+			if scene_item:
+				item_id = obs.obs_sceneitem_get_id(scene_item)
 
 		if scene_item:
+
 			item_info = obs.obs_transform_info()
 			obs.obs_sceneitem_get_info(scene_item, item_info)
 
@@ -313,6 +354,50 @@ def item_tween(unused_addr,
 			if from_scl_x == None: from_scl_x = item_info.scale.x
 			if from_scl_y == None: from_scl_y = item_info.scale.y
 			if from_rot   == None: from_rot   = item_info.rot
+			
+			# Si modifica width o height, necesita medidas originales del source
+			if to_width != None or to_height != None:
+				with ExitStack() as stack:
+					try:
+						if item_name.startswith('id:'):
+							if not private:
+								source = obs.obs_sceneitem_get_source(scene_item)
+							else:
+								print(f'item_tween() sceneitem como "{item_name}" y "private=True" aún no es posible')
+								return
+						else:
+							if not private:
+								source = stack.enter_context(source_auto_release(item_name))
+							else:
+								source = getattr(obs_api, item_name)
+
+						crop = obs.obs_sceneitem_crop()
+						obs.obs_sceneitem_get_crop(scene_item, crop)
+
+						if to_width != None:
+							original_width  = (obs.obs_source_get_width(source)  - crop.left - crop.right)  * item_info.scale.x
+							original_scl_x  = item_info.scale.x
+							if from_width != None:
+								from_scl_x = (from_width * item_info.scale.x) / original_width
+							else:
+								from_width = original_width
+								from_scl_x = original_scl_x
+							to_scl_x   = (to_width * item_info.scale.x)  / original_width
+
+						if to_height != None:
+							original_height  = (obs.obs_source_get_height(source)  - crop.left - crop.right)  * item_info.scale.y
+							original_scl_y  = item_info.scale.y
+							if from_height != None:
+								from_scl_y = (from_height * item_info.scale.y) / original_height
+							else:
+								from_height = original_height
+								from_scl_y  = original_scl_y
+							to_scl_y   = (to_height * item_info.scale.y) / original_height
+
+					except:
+						print(f'item_tween() Item "{item_name}" mal definido valor de "private"')
+						return
+	
 
 			# Código único para que se ejecute un tween a la vez
 			code = ''.join(random.choice(string.ascii_letters) for i in range(10))
@@ -331,28 +416,32 @@ def item_tween(unused_addr,
 				'scl_x':      from_scl_x,
 				'scl_y':      from_scl_y,
 				'rot':        from_rot,
+				'width':      from_width,
+				'height':     from_height,
 				'alignment':  alignment,
 				'visible':    visible,
 				'extra':      extra,
 				'eval_':      eval_,
+				'private':    private,
 			}
 
 			# Función en Thread
 			th(th_item_tween, [scene_name, item_name, scene_item,
 				item_info, item_id, code,
 				init_time, duration, delay, ease_type,
-				from_pos_x, from_pos_y, from_scl_x, from_scl_y, from_rot,
-				to_pos_x, to_pos_y, to_scl_x, to_scl_y, to_rot,
-				alignment, visible, fps, extra, eval_])
+				from_pos_x, from_pos_y, from_scl_x, from_scl_y, from_rot, from_width, from_height,
+				to_pos_x, to_pos_y, to_scl_x, to_scl_y, to_rot, to_width, to_height,
+				alignment, visible, fps, extra, eval_, private])
 		else:
 			print(f'item_tween() Item no existe: "{item_name}"')
 
 def th_item_tween(scene_name, item_name, scene_item,
 	item_info, item_id, code,
 	init_time, duration, delay, ease_type,
-	from_pos_x, from_pos_y, from_scl_x, from_scl_y, from_rot,
-	to_pos_x, to_pos_y, to_scl_x, to_scl_y, to_rot,
-	alignment, visible, fps, extra, eval_):
+	from_pos_x, from_pos_y, from_scl_x, from_scl_y, from_rot, from_width, from_height,
+	to_pos_x, to_pos_y, to_scl_x, to_scl_y, to_rot, to_width, to_height,
+	alignment, visible, fps, extra, eval_, private):
+
 	# Delay
 	if delay > 0:
 		time.sleep(delay/1000)
@@ -373,58 +462,56 @@ def th_item_tween(scene_name, item_name, scene_item,
 			return
 		
 		elapsed_time = time.time()*1000 - init_time
-		# pos_change_x = None if to_pos_x == None else to_pos_x - from_pos_x
-		# pos_change_y = None if to_pos_y == None else to_pos_y - from_pos_y
-		# scl_change_x = None if to_scl_x == None else to_scl_x - from_scl_x
-		# scl_change_y = None if to_scl_y == None else to_scl_y - from_scl_y
-		# rot_change   = None if to_rot   == None else to_rot   - from_rot
 		
 		# time, beginning position, change inposition, and duration
-		pos_x = None if to_pos_x == None else tween_eq(ease_type, elapsed_time, from_pos_x, to_pos_x, duration)
-		pos_y = None if to_pos_y == None else tween_eq(ease_type, elapsed_time, from_pos_y, to_pos_y, duration)
-		scl_x = None if to_scl_x == None else tween_eq(ease_type, elapsed_time, from_scl_x, to_scl_x, duration)
-		scl_y = None if to_scl_y == None else tween_eq(ease_type, elapsed_time, from_scl_y, to_scl_y, duration)
-		rot   = None if to_rot   == None else tween_eq(ease_type, elapsed_time, from_rot  , to_rot  , duration)
+		pos_x  = None if to_pos_x  == None else tween_eq(ease_type, elapsed_time, from_pos_x,  to_pos_x,  duration)
+		pos_y  = None if to_pos_y  == None else tween_eq(ease_type, elapsed_time, from_pos_y,  to_pos_y,  duration)
+		scl_x  = None if to_scl_x  == None else tween_eq(ease_type, elapsed_time, from_scl_x,  to_scl_x,  duration)
+		scl_y  = None if to_scl_y  == None else tween_eq(ease_type, elapsed_time, from_scl_y,  to_scl_y,  duration)
+		rot    = None if to_rot    == None else tween_eq(ease_type, elapsed_time, from_rot  ,  to_rot  ,  duration)
+		width  = None if to_width  == None else tween_eq(ease_type, elapsed_time, from_width,  to_width,  duration)
+		height = None if to_height == None else tween_eq(ease_type, elapsed_time, from_height, to_height, duration)
 
-		# pos_change_x = None if to_pos_x == None else to_pos_x - from_pos_x
-		# pos_change_y = None if to_pos_y == None else to_pos_y - from_pos_y
-		# scl_change_x = None if to_scl_x == None else to_scl_x - from_scl_x
-		# scl_change_y = None if to_scl_y == None else to_scl_y - from_scl_y
-		# rot_change   = None if to_rot   == None else to_rot   - from_rot
-		
-		# # time, beginning position, change inposition, and duration
-		# pos_x = None if to_pos_x == None else tween_eq(ease_type, elapsed_time, from_pos_x, pos_change_x, duration)
-		# pos_y = None if to_pos_y == None else tween_eq(ease_type, elapsed_time, from_pos_y, pos_change_y, duration)
-		# scl_x = None if to_scl_x == None else tween_eq(ease_type, elapsed_time, from_scl_x, scl_change_x, duration)
-		# scl_y = None if to_scl_y == None else tween_eq(ease_type, elapsed_time, from_scl_y, scl_change_y, duration)
-		# rot   = None if to_rot   == None else tween_eq(ease_type, elapsed_time, from_rot  , rot_change  , duration)
 
 		c4(f'TWEEN SCENEITEM TRANSFORM')
 		c4(f'   scene_name="{scene_name}", item_name="{item_name}",')
 		c4(f'   pos_x={pos_x}, pos_y={pos_y}, scl_x={scl_x}, scl_y={scl_y},')
-		c4(f'   rot={rot}, alignment={alignment}, visible={visible})')
+		c4(f'   rot={rot}, width={width}, height={height}, alignment={alignment}, visible={visible})')
 
 		# Si hay modificaciones, las hace y guarda info del objeto
+		# Position
 		if pos_x     != None:
 			item_info.pos.x                               = int(pos_x)
 			globalDict.tween_sceneitems[item_id]['pos_x'] = int(pos_x)
 		if pos_y     != None:
 			item_info.pos.y                               = int(pos_y)
 			globalDict.tween_sceneitems[item_id]['pos_y'] = int(pos_y)
+		
+		# Scale
 		if scl_x     != None:
 			item_info.scale.x                             = scl_x
 			globalDict.tween_sceneitems[item_id]['scl_x'] = scl_x
 		if scl_y     != None:
 			item_info.scale.y                             = scl_y
 			globalDict.tween_sceneitems[item_id]['scl_y'] = scl_y
+
+		# Size (Dummy)
+		if width != None:
+			globalDict.tween_sceneitems[item_id]['width'] = width
+		if height != None:
+			globalDict.tween_sceneitems[item_id]['height'] = height
+
+		# Rotation
 		if rot       != None:
 			item_info.rot                                 = rot
 			globalDict.tween_sceneitems[item_id]['rot']   = rot
+		
+		# Alignment
 		if alignment != None:
 			item_info.alignment                               = alignment
 			globalDict.tween_sceneitems[item_id]['alignment'] = alignment
+		
 		obs.obs_sceneitem_set_info(scene_item, item_info)
-
 
 		if eval_ != None:
 			eval(eval_)
@@ -451,6 +538,10 @@ def th_item_tween(scene_name, item_name, scene_item,
 	if 'rot'   in locals() and rot   != None:
 		item_info.rot                                 = to_rot
 		globalDict.tween_sceneitems[item_id]['rot']   = to_rot
+	if 'width'   in locals() and width   != None:
+		globalDict.tween_sceneitems[item_id]['width']   = to_width
+	if 'height'   in locals() and height   != None:
+		globalDict.tween_sceneitems[item_id]['height']   = to_height
 	if 'alignment' in locals() and alignment != None:
 		item_info.alignment                               = alignment
 		globalDict.tween_sceneitems[item_id]['alignment'] = alignment
@@ -459,7 +550,7 @@ def th_item_tween(scene_name, item_name, scene_item,
 	c4(f'TWEEN ITEM TRANSFORM - FINISH')
 	c4(f'   scene_name="{scene_name}", item_name="{item_name}",')
 	c4(f'   pos_x={int(to_pos_x)}, pos_y={int(to_pos_y)}, scl_x={to_scl_x}, scl_y={to_scl_y},')
-	c4(f'   rot={to_rot}, alignment={alignment}, visible={visible})')
+	c4(f'   rot={to_rot}, width={to_width}, height={to_height}, alignment={alignment}, visible={visible})')
 
 	# Ningunea elementos propios del tween que termina
 	globalDict.tween_sceneitems[item_id]['init_time'] = None
@@ -474,7 +565,7 @@ def th_item_tween(scene_name, item_name, scene_item,
 
 	c3(f'Terminó item tween "{scene_name}" "{item_name}"')
 
-# TWEEN - Ecuaciones from https://github.com/semitable/easing-functions
+# TWEEN - Ecuaciones
 def tween_eq(ease_type, t, b, c, d):
 	#~ if t >= 0:
 	if ease_type in ['linear', 'LinearInOut']:
@@ -570,21 +661,3 @@ def tween_eq(ease_type, t, b, c, d):
 	elif ease_type in ['inOutBounce', 'BounceEaseInOut']:
 		a = BounceEaseInOut(b, c, d)
 		return a(t)
-
-def write_tween_sceneitems():
-	while True:
-		with open("/home/mario/meytv/obs-scripts/tween_items_sources.watch", "w") as outfile:
-			new_dict = {
-				'sceneitems': globalDict.tween_sceneitems, 
-				'sources':    globalDict.tween_sources,
-				}
-			json.dump(
-				new_dict,
-				outfile,
-				default=str,
-				sort_keys=True,
-				indent=2,
-				ensure_ascii=False
-				)
-		time.sleep(1)        # 1fps
-thread(write_tween_sceneitems)
