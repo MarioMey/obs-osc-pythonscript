@@ -67,7 +67,7 @@ from easing_functions import (
 try:
 	from obs_api import (
 		th, c1, c2, c3, c4, c, 
-		consola, thread, globalDict, 
+		consola, thread, sDict, 
 		tobool, toint, tolist, tofloat,
 		)
 	import obs_api
@@ -144,9 +144,10 @@ def source_tween(unused_addr,
 	value        = float()
 
 	with ExitStack() as stack:
-		if not private: source = stack.enter_context(source_auto_release(source_name))
-		# else:           source = globals()[source_name]
-		else:           source = getattr(obs_api, source_name)
+		if not private:
+			source = stack.enter_context(source_auto_release(source_name))
+		else:
+			source = getattr(obs_api, source_name)
 		
 		if source:
 			filter_ = stack.enter_context(get_filter(source, filter_name))
