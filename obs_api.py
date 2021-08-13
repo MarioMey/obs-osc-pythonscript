@@ -1,7 +1,31 @@
 #!/usr/bin/env python3
+""" obs_api
+
+Some funtions to use with OBS
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+__author__ = "Mario Mey"
+__contact__ = "mariomey@gmail.com"
+__credits__ = []
+__date__ = "2021/08/13"
+__deprecated__ = False
+__license__ = "GPLv3"
+__maintainer__ = "developer"
+__status__ = "Production"
+__version__ = "0.1"
 
 from contextlib import contextmanager, ExitStack
-import random, time, datetime, threading
+import random, time, datetime, threading, ast
 
 import obspython as obs
 
@@ -315,7 +339,7 @@ def tolist(que):
 	if type(que) == list:
 		return que
 	elif type(que) == str and que.startswith('[') and que.endswith(']'):
-		lista =  que[1:][:1].split(',')
+		lista =  que[1:-1].split(',')
 		isdig = []
 		for i in lista:
 			if i.translate({ord(c): None for c in '-.'}).isdigit():
@@ -411,16 +435,16 @@ def source_filter_get_settings(unused_addr, source_name, filter_name, private=Fa
 			else: print(f'Filter no existe: {filter_name}')
 		else: print(f'Source no existe: {source_name}')
 
-def source_set_opacity(unused_addr, source_name, opacity):
-	source_filter_set_value(None, source_name, 'Color Correction', 'opacity', tofloat(opacity))
+def source_set_opacity(unused_addr, source_name, opacity, private=False):
+	source_filter_set_value(None, source_name, 'Color Correction', 'opacity', tofloat(opacity), private=private)
 
 def source_set_hue(unused_addr, source_name, hue, private=False):
 	source_filter_set_value(None, source_name, 'Color Correction', 'hue_shift', int(hue), private=private)
 
-def source_set_bri_sat_hue(unused_addr, source_name, valores):
-	source_filter_set_value(None, source_name, 'Color Correction', 'brightness', float(valores[0]))
-	source_filter_set_value(None, source_name, 'Color Correction', 'saturation', float(valores[1]))
-	source_filter_set_value(None, source_name, 'Color Correction', 'hue_shift', int(valores[2]))
+def source_set_bri_sat_hue(unused_addr, source_name, valores, private=False):
+	source_filter_set_value(None, source_name, 'Color Correction', 'brightness', float(valores[0]), private=private)
+	source_filter_set_value(None, source_name, 'Color Correction', 'saturation', float(valores[1]), private=private)
+	source_filter_set_value(None, source_name, 'Color Correction', 'hue_shift',    int(valores[2]), private=private)
 
 def source_set_con_bri_sat_hue(unused_addr, source_name, valores, private=False):
 	source_filter_set_value(None, source_name, 'Color Correction', 'contrast',   float(valores[0]), private=private)
@@ -428,20 +452,20 @@ def source_set_con_bri_sat_hue(unused_addr, source_name, valores, private=False)
 	source_filter_set_value(None, source_name, 'Color Correction', 'saturation', float(valores[2]), private=private)
 	source_filter_set_value(None, source_name, 'Color Correction', 'hue_shift',    int(valores[3]), private=private)
 
-def source_filter_set_enabled(unused_addr, source_name, filter_name, boolean):
-	c2(f'source_filter_set_enabled(source_name="{source_name}", {filter_name}, {boolean})')
+def source_set_lut_file(unused_addr, source_name, filter_name, lut_file, private=False):
+	source_filter_set_value(None, source_name, 'lut',               'image_path', lut_file,         private=private)
+
+def source_filter_set_enabled(unused_addr, source_name, filter_name, boolean, private=False):
+	c2(f'source_filter_set_enabled(source_name="{source_name}", {filter_name}, {boolean}, {private})')
 	with ExitStack() as stack:
-		source = stack.enter_context(source_auto_release(source_name))
+		if not private: source = stack.enter_context(source_auto_release(source_name))
+		else:           source = globals()[source_name]
 		if source:
 			filter_ = stack.enter_context(get_filter(source, filter_name))
 			if filter_:
 				obs.obs_source_set_enabled(filter_, bool(boolean))
 			else: print(f'Filter no existe: {filter_name}')
 		else: print(f'Source no existe: {source_name}')
-
-def source_set_lut_file(unused_addr, source_name, filter_name, lut_file):
-	source_filter_set_value(None, source_name=source_name,
-		filter_name='lut', setting='image_path', value=lut_file)
 
 def source_set_image_file(unused_addr, source_name, image_file, from_web=False, private=False):
 	c2(f'source_set_image_file(source_name="{source_name}", image_file="{image_file}", from_web={from_web})')
@@ -587,6 +611,7 @@ def item_get_transform(unused_addr, scene_name, item_name, print_=False):
 			source = obs.obs_sceneitem_get_source(scene_item)
 			itemInfo = obs.obs_transform_info()
 			crop = obs.obs_sceneitem_crop()
+
 			obs.obs_sceneitem_get_info(scene_item, itemInfo)
 			obs.obs_sceneitem_get_crop(scene_item, crop)
 			todaladata = {
@@ -612,8 +637,8 @@ def item_get_transform(unused_addr, scene_name, item_name, print_=False):
 			return None
 
 
-def item_set_pos(unused_addr, scene_name, item_name, pos_x=None, pos_y=None):
-	c4(f'item_set_pos(scene_name="{scene_name}", item_name="{item_name}", {pos_x}, {pos_y})')
+def item_set_pos(unused_addr, scene_name, item_name, pos_x=None, pos_y=None, add_x=0, add_y=0):
+	c4(f'item_set_pos(scene_name="{scene_name}", item_name="{item_name}", pos_x={pos_x}, pos_y={pos_y}, add_x={add_x}, add_y={add_y})')
 
 	scene, scenes_list = get_scene_context(scene_name)
 	if scene:
@@ -624,38 +649,15 @@ def item_set_pos(unused_addr, scene_name, item_name, pos_x=None, pos_y=None):
 				old_pos = obs.vec2()
 				obs.obs_sceneitem_get_pos(scene_item, old_pos)
 				new_pos = obs.vec2()
-				new_pos.x = int(pos_x) if pos_x not in [None, 'none', 'None'] else old_pos.x
-				new_pos.y = int(pos_y) if pos_y not in [None, 'none', 'None'] else old_pos.y
+				new_pos.x = int(pos_x) if pos_x not in [None, 'none', 'None'] else old_pos.x + add_x
+				new_pos.y = int(pos_y) if pos_y not in [None, 'none', 'None'] else old_pos.y + add_y
 				obs.obs_sceneitem_set_pos(scene_item, new_pos)
 			else:
 				print(f'item_set_pos() Item no existe: "{item_name}"')
 	else:
 		obs.source_list_release(scenes_list)
-		print(f'item_set_scl() Scene no existe: "{scene_name}"')
+		print(f'item_set_pos() Scene no existe: "{scene_name}"')
 		return
-
-def item_set_pos2(unused_addr, scene_name, item_name, pos_x=None, pos_y=None):
-	c4(f'item_set_pos(scene_name="{scene_name}", item_name="{item_name}", {pos_x}, {pos_y})')
-
-	scene, scenes_list = get_scene_context(scene_name)
-	if not scene:
-		obs.source_list_release(scenes_list)
-		print(f'item_set_scl() Scene no existe: "{scene_name}"')
-		return
-
-	with source_list_auto_release(scenes_list):
-		if item_name.startswith('id:'): scene_item = obs.obs_scene_find_sceneitem_by_id(scene, int(item_name[3:]))
-		else: scene_item = obs.obs_scene_find_source(scene, item_name)
-
-		if scene_item:
-			old_pos = obs.vec2()
-			obs.obs_sceneitem_get_pos(scene_item, old_pos)
-			new_pos = obs.vec2()
-			new_pos.x = int(pos_x) if pos_x not in [None, 'none', 'None'] else old_pos.x
-			new_pos.y = int(pos_y) if pos_y not in [None, 'none', 'None'] else old_pos.y
-			obs.obs_sceneitem_set_pos(scene_item, new_pos)
-		else:
-			print(f'item_set_pos() Item no existe: "{item_name}"')
 
 def item_set_scl(unused_addr, scene_name, item_name, scl_x=None, scl_y=None):
 	c4(f'item_set_scl(scene_name="{scene_name}", item_name="{item_name}", scl_x={scl_x}, scl_y={scl_y})')
@@ -680,6 +682,68 @@ def item_set_scl(unused_addr, scene_name, item_name, scl_x=None, scl_y=None):
 
 		else:
 			print(f'item_set_scl() Item no existe: "{item_name}"')
+
+def item_set_size(unused_addr,
+	scene_name,
+	item_name,
+	width=None,
+	height=None,
+	private=False):
+	c4(f'item_set_size(scene_name="{scene_name}", item_name="{item_name}", width={width}, height={height}, private={private})')
+
+	width   = toint(width)
+	height  = toint(height)
+	private = tobool(private)
+
+	scene, scenes_list = get_scene_context(scene_name)
+	if not scene:
+		obs.source_list_release(scenes_list)
+		print(f'item_set_size() Scene no existe: "{scene_name}"')
+		return
+
+	with source_list_auto_release(scenes_list):
+		if item_name.startswith('id:'):
+			scene_item = obs.obs_scene_find_sceneitem_by_id(scene, int(item_name[3:]))
+		else:
+			scene_item = obs.obs_scene_find_source(scene, item_name)
+
+		if scene_item:
+			with ExitStack() as stack:
+
+				try:
+					if item_name.startswith('id:'):
+						if not private:
+							source = obs.obs_sceneitem_get_source(scene_item)
+						else:
+							print(f'item_set_size() sceneitem como "{item_name}" y "private=True" aún no es posible')
+							return
+					else:
+						if not private:
+							source = stack.enter_context(source_auto_release(item_name))
+						else:
+							source = globals()[item_name]
+
+					item_info = obs.obs_transform_info()
+					crop = obs.obs_sceneitem_crop()
+					obs.obs_sceneitem_get_info(scene_item, item_info)
+					obs.obs_sceneitem_get_crop(scene_item, crop)
+
+					old_scl = obs.vec2()
+					obs.obs_sceneitem_get_scale(scene_item, old_scl)
+					old_width  = (obs.obs_source_get_width(source)  - crop.left - crop.right)  * item_info.scale.x
+					old_height = (obs.obs_source_get_height(source) - crop.top -  crop.bottom) * item_info.scale.y
+
+					new_scl = obs.vec2()
+					new_scl.x = old_scl.x * (width  / old_width)  if width  not in [None, 'none', 'None'] else old_scl.x
+					new_scl.y = old_scl.y * (height / old_height) if height not in [None, 'none', 'None'] else old_scl.y
+
+					obs.obs_sceneitem_set_scale(scene_item, new_scl)
+				
+				except:
+					print(f'item_set_size() Item "{item_name}" mal definido valor de "private"')
+
+		else:
+			print(f'item_set_size() Item no existe: "{item_name}"')
 
 def item_set_scl_filter(unused_addr, scene_name, item_name, scl_filter):
 	c4(f'item_set_scl_filter(scene_name="{scene_name}", item_name="{item_name}", scl_filter={scl_filter})')
@@ -1005,7 +1069,7 @@ def item_duplicate(unused_addr,
 	visible=None, 
 	reference=False,
 	private=False):
-	consola(type(reference), c.error)
+	
 	c2(f'item_duplicate(fromScene_name="{fromScene_name}", toScene_name="{toScene_name}",')
 	c2(f'	item_name="{item_name}", new_item_name="{new_item_name}",')
 	c2(f'	copy_info_crop={copy_info_crop}, visible={visible}, reference={reference})')
@@ -1298,14 +1362,22 @@ def item_create_text(unused_addr,
 			c4(item_id)
 			return item_id
 
-def item_create_debug_box(unused_addr, 
-	scene_name, item_name, 
-	pos_x=0, pos_y=0, 
-	width=100, height=100, 
-	rgb=[1,1,1], opacity=50):
+def item_create_box(unused_addr, 
+	scene_name,
+	item_name, 
+	pos_x=0,
+	pos_y=0, 
+	width=100,
+	height=100, 
+	rgb=[1,1,1],
+	opacity=1,
+	alignment=0,
+	private=True,
+	):
 	
-	c2(f'item_create_debug_box(scene_name="{scene_name}", item_name="{item_name}", rgb={rgb}, opacity={opacity})')
+	c2(f'item_create_box(scene_name="{scene_name}", item_name="{item_name}", rgb={rgb}, opacity={opacity}, alignment={alignment})')
 
+	rgb = tolist(rgb)
 	color_decimal = rgba2decimal([rgb[0], rgb[1], rgb[2], 1])
 
 	scene, scenes_list = get_scene_context(scene_name)
@@ -1315,31 +1387,34 @@ def item_create_debug_box(unused_addr,
 		return
 
 	with source_list_auto_release(scenes_list):
-		settings = obs.obs_data_create()
-		obs.obs_data_set_int(settings, "color", color_decimal)
-		obs.obs_data_set_int(settings, "width", int(width))
-		obs.obs_data_set_int(settings, "height", int(height))
 
-		source = obs.obs_source_create_private("color_source", item_name, settings)
-		new_item = obs.obs_scene_add(scene, source)
+		with ExitStack() as stack:
 
-		# Aplica filtro color_source para opacidad
-		filter_settings = obs.obs_data_create()
-		obs.obs_data_set_int(filter_settings, "opacity", int(opacity))
-		source_color = obs.obs_source_create_private("color_filter", "transparency", filter_settings)
-		obs.obs_source_filter_add(source, source_color)
+			sourceSettings = stack.enter_context(new_settings())
+			obs.obs_data_set_int(sourceSettings, "color", color_decimal)
+			obs.obs_data_set_int(sourceSettings, "width", int(width))
+			obs.obs_data_set_int(sourceSettings, "height", int(height))
 
-		obs.obs_data_release(filter_settings)
-		obs.obs_source_release(source_color)
+			# Aplica filtro color_source para opacidad
+			filterSettings = stack.enter_context(new_settings())
+			obs.obs_data_set_double(filterSettings, "opacity", opacity)
+			source_color = obs.obs_source_create_private("color_filter_v2", "Color Correction", filterSettings)
 
-		scene_item = obs.obs_scene_find_source(scene, item_name)
+			if not private:
+				source = stack.enter_context(source_creation("color_source", item_name, sourceSettings))
+				new_item = obs.obs_scene_add(scene, source)
+				obs.obs_source_filter_add(source, source_color)
+			else:
+				globals()[item_name] = obs.obs_source_create_private("color_source", item_name, sourceSettings)
+				new_item = obs.obs_scene_add(scene, globals()[item_name])
+				obs.obs_source_filter_add(globals()[item_name], source_color)
+
+		# scene_item = obs.obs_scene_find_source(scene, item_name)
 		new_pos = obs.vec2()
 		new_pos.x, new_pos.y = pos_x, pos_y
-		obs.obs_sceneitem_set_pos(scene_item, new_pos)
-			
-		obs.obs_data_release(settings)
-		obs.obs_source_release(source)
-		
+		obs.obs_sceneitem_set_pos(new_item, new_pos)
+		obs.obs_sceneitem_set_alignment(new_item, alignment)
+
 		item_id = obs.obs_sceneitem_get_id(new_item)
 		return item_id
 
@@ -1615,11 +1690,16 @@ def crea_grilla(scene, mitad, lienzo, elem_width, elem_height, verbose):
 	
 	return [grilla, casilleros_x, casilleros_y]
 
-def files_in_path(path, extension, que='lista'):
-	lista = sorted([f for f in listdir(path) if isfile(join(path, f)) and f[-3:] == extension])
-	dicc = sorted([{'file': f, 'path': join(path, f)} for f in listdir(path) if isfile(join(path, f)) and f[-3:] == extension], key=lambda k: k['file'])
-	if que.startswith('l'):  return lista
-	elif que.startswith('d'): return dicc
+def files_in_path(path, extension, devuelve='lista'):
+	if devuelve.startswith('l'):   return sorted([f for f in listdir(path) if isfile(join(path, f)) and f.split('.')[-1] == extension])
+	elif devuelve.startswith('d'): return sorted([{'extension': f.split('.')[-1], 'file': f, 'path': f'{path}/{f}'} for f in listdir(path) if isfile(f'{path}/{f}') and f.split('.')[-1] == extension], key=lambda k: k['file'])
+
+def images_in_path(path, *extensions):
+	return sorted([{'extension': f.split('.')[-1], 'file': f, 'path': f'{path}/{f}', 'size': list(Image.open(f'{path}/{f}').size)} for f in listdir(path) if isfile(f'{path}/{f}') and f.split('.')[-1] in list(extensions)], key=lambda k: k['file']) 
+
+def dirs_in_path(path, devuelve='lista'):
+	if devuelve.startswith('l'):   return sorted([f for f in listdir(path) if isdir(f'{path}/{f}')])
+	elif devuelve.startswith('d'): return sorted([{'dir': f, 'cantidad': len(listdir(f'{path}/{f}'))} for f in listdir(path) if isdir(f'{path}/{f}')], key=lambda k: k['dir']) 
 
 def testdebug():
 	consola(f'Active threads: {threading.active_count()}', c.violeta)
