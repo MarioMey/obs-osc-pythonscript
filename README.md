@@ -3,9 +3,11 @@
 ## OBS-OSC-PythonScript 0.3
 OBS Python scripts that allows to receive/send OSC messages from/to OBS and from/to another OSC sending capable software, like PureData, MobMuPlat, TouchOSC, etc.
 
-OBS-OSC-PythonScript in **not yet approved** [OBS Python Resource](https://obsproject.com/forum/resources/obs-osc-pythonscript-0-1.1200/).
+OBS-OSC-PythonScript in [OBS Python Resource](https://obsproject.com/forum/resources/obs-osc-pythonscript-0-1.1200/).
 
 It is based on OBS script [OSC Sender for OBS](https://obsproject.com/forum/threads/osc-sender-for-obs.100618/), but this time, it can receive messages (original doesn't). It uses [python-osc](https://github.com/attwad/python-osc/ "Github attwad/python-osc") and it neither use [obs-websockets](https://github.com/Palakis/obs-websocket "Github Palakis/obs-websocket") nor [obs-websockets-py](https://github.com/Elektordi/obs-websocket-py "Github Elektordi/obs-websocket-py"). 
+
+It is full of already-done functions to manipulate sources, scenes and sceneitems. Check `obs_api.py` and `obs_tween.py`.
 
 #### Requirements
 - [python-osc](https://github.com/attwad/python-osc/)
@@ -25,36 +27,37 @@ Load `obs_osc_pythonscript.py` in **Script**, in **Tools** menu.
 ### Examples of receiving OSC messages (Server)
 The script opens a port in the computer and listen to incoming messages from another software. Messages are with 1 level address and some arguments, depend on the type of command. For example, to locate an item called "ball" in "main" scene, to x: 960 y: 540 (middle of FullHD), message is:
 
-_/item_set_pos main ball 960 540_
+`/item_set_pos main ball 960 540`
 
 Another example: to make the same ball "move" (interpolation included) from where it was to x: 960 y: 540, wait 500ms to start moving to get that location in 2000ms with an ease type of 'outQuad':
 
-_/item_tween to_pos main ball 960 540 2000 500 outQuad_
+`/item_tween to_pos main ball 960 540 2000 500 outQuad`
 
 Fade in (opacity) a source with already "Color Correction V2" filter applied. Also, the setting that will be modified **has** to be changed by hand at least once. This is the way that OBS writes setting to JSON file. Then, you can change it with /source_tween. This example takes opacity from the value it was to 0.3 in 1000ms.
 
-_/source_tween to_value main ball colorcorrection opacity 0.3 1000_
+`/source_tween to_value main ball colorcorrection opacity 0.3 1000`
 
 ### List of commands
 #### Scenes: changing.
 `/scene_change scene`
-#### Items: position, scale, rotation, visibility, crop, alignment, delete, duplication, reference, etc.
+#### SceneItems: position, scale, size, rotation, visibility, crop, alignment, delete, duplication, reference, etc.
 ```
 # Change transform properties
-/item_set_pos       scene item pos_x pos_y
-/item_set_scl       scene item scl_x scl_y
-/item_set_rot       scene item rotation
-/item_set_transform scene item pos_x pos_y scl_x scl_y rotation
-/item_set_alignment scene item alignment(int)
-/item_set_crop      scene item left right top bottom
-/item_set_visible   scene item visibility(bool)
+/item_set_pos       scene_name item_name pos_x pos_y
+/item_set_scl       scene_name item_name scl_x scl_y
+/item_set_rot       scene_name item_name rotation
+/item_set_size      scene_name item_name width height
+/item_set_transform scene_name item_name pos_x pos_y scl_x scl_y rotation
+/item_set_alignment scene_name item_name alignment(int)
+/item_set_crop      scene_name item_name left right top bottom
+/item_set_visible   scene_name item_name visibility(bool)
 
 # Remove item
-/item_remove        scene item
+/item_remove        scene sceneitem
 
-# Duplicating/referencing items
-/item_reference from_scene to_scene item
-/item_duplicate from_scene to_scene item
+# Duplicating/referencing SceneItems
+/item_reference from_scene_name to_scene_name item_name
+/item_duplicate from_scene_name to_scene_name item_name
 
 # Not yet documented
 /item_get_transform
@@ -67,46 +70,52 @@ _/source_tween to_value main ball colorcorrection opacity 0.3 1000_
 /item_create_text
 /item_create_image
 /item_create_video
+/item_create_box
 ```
 #### Item tween
-Item position, scale and rotation interpolated transformation, with duration, delay and ease type.
-- To change item properties to a new position/scale/rotation, use `to_pos`, `to_scl`, `to_rot` and `to_transform`.
-- If you want to set it from an specific position/scale/rotation to a new position/scale/rotation, use `from_to_pos`, `from_to_scl`, `from_to_rot` and `from_to_transform`.
+Item position, scale, size and rotation interpolated transformation, with duration, delay and ease type.
+- To change SceneItem properties to a new position/scale/size/rotation, use `to_pos`, `to_scl`, `to_size`, `to_rot` and `to_transform`.
+- If you want to set it from an specific position/scale/rotation to a new position/scale/size/rotation, use `from_to_pos`, `from_to_scl`, `from_to_size`, `from_to_rot` and `from_to_transform`.
 - `duration` and `delay` are in miliseconds.
-- Up to `duration` is required. `delay` and `ease_type` are optionals, but it has to be in that order and `ease_type` can't be alone: if you want to send `ease_type` value, you have to send `0` as delay.
+- To change position and size at the same time, use `to_pos_size` or `from_to_pos_size`.
+- Up to `duration` value is required. `delay` and `ease_type` are optionals, but it has to be in that order and `ease_type` can't be alone: if you want to send `ease_type` value, you have to send `0` as delay.
 - `ease_type` could be `LinearInOut` (default), `QuadEaseInOut`, `QuadEaseIn`, `QuadEaseOut`, `CubicEaseInOut`, `CubicEaseIn`, `CubicEaseOut`, `QuarticEaseInOut`, `QuarticEaseIn`, `QuarticEaseOut`, `QuinticEaseInOut`, `QuinticEaseIn`, `QuinticEaseOut`, `SineEaseInOut`, `SineEaseIn`, `SineEaseOut`, `CircularEaseIn`, `CircularEaseInOut`, `CircularEaseOut`, `ExponentialEaseInOut`, `ExponentialEaseIn`, `ExponentialEaseOut`, `ElasticEaseIn`, `ElasticEaseInOut`, `ElasticEaseOut`, `BackEaseIn`, `BackEaseInOut`, `BackEaseOut`, `BounceEaseIn`, `BounceEaseInOut` or `BounceEaseOut` (ease equations taken from https://github.com/semitable/easing-functions)
 ```
 # Only target
-/item_tween to_pos       scene item to_pos_x to_pos_y duration delay ease_type
-/item_tween to_scl       scene item to_scl_x to_scl_y duration delay ease_type
-/item_tween to_rot       scene item to_rot duration delay ease_type
-/item_tween to_transform scene item to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration delay ease_type
+/item_tween to_pos       scene_name item_name to_pos_x to_pos_y duration delay ease_type
+/item_tween to_scl       scene_name item_name to_scl_x to_scl_y duration delay ease_type
+/item_tween to_size      scene_name item_name to_width to_height duration delay ease_type
+/item_tween to_pos_size  scene_name item_name to_pos_x to_pos_y to_width to_height duration delay ease_type
+/item_tween to_rot       scene_name item_name to_rot duration delay ease_type
+/item_tween to_transform scene_name item_name to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration delay ease_type
 # Origin and target
-/item_tween from_to_pos       scene item from_pos_x from_pos_y to_pos_x to_pos_y duration delay ease_type
-/item_tween from_to_scl       scene item from_scl_x from_scl_y to_scl_x to_scl_y duration delay ease_type
-/item_tween from_to_rot       scene item from_rotation to_rotation duration delay ease_type
-/item_tween from_to_transform scene item from_pos_x from_pos_y from_scl_x from_scl_y from_rotation to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration delay ease_type
+/item_tween from_to_pos       scene_name item_name from_pos_x from_pos_y to_pos_x to_pos_y duration delay ease_type
+/item_tween from_to_scl       scene_name item_name from_scl_x from_scl_y to_scl_x to_scl_y duration delay ease_type
+/item_tween from_to_size      scene_name item_name from_width from_height to_width to_height duration delay ease_type
+/item_tween from_to_pos_size  scene_name item_name from_pos_x from_pos_y from_width from_height to_pos_x to_pos_y to_width to_height duration delay ease_type
+/item_tween from_to_rot       scene_name item_name from_rotation to_rotation duration delay ease_type
+/item_tween from_to_transform scene_name item_name from_pos_x from_pos_y from_scl_x from_scl_y from_rotation to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration delay ease_type
 ```
 #### Sources:
 To change a source setting, you don't have to send the scene name, as a source will change in every scene where it is referenced.
 ```
 # Files
-/source_set_image_file     source filename(string)
-/source_set_video_file     source filename(string)
+/source_set_image_file     source_name filename(string)
+/source_set_video_file     source_name filename(string)
 # Text
-/source_set_text           source text(string)
-/source_set_text_size      source size(int)
+/source_set_text           source_name text(string)
+/source_set_text_size      source_name size(int)
 # Image slide
-/source_set_slide_time     source time_between_slides(int)
+/source_set_slide_time     source_name time_between_slides(int)
 # Audio
-/source_set_volume         source volume(float)
+/source_set_volume         source_name volume(float)
 # Filters
-/source_set_opacity        source opacity(int)
-/source_filter_set_enabled source filter enabled(bool)
-/source_filter_set_value   source filter setting(string) value(int)
-/source_set_bri_sat_hue    source bri(int) sat(int) hue(int)
-/source_set_hue            source hue(int)
-/source_set_lut_file       source filter lut_filename(string)
+/source_set_opacity        source_name opacity(int)
+/source_filter_set_enabled source_name filter enabled(bool)
+/source_filter_set_value   source_name filter setting(string) value(int)
+/source_set_bri_sat_hue    source_name bri(int) sat(int) hue(int)
+/source_set_hue            source_name hue(int)
+/source_set_lut_file       source_name filter lut_filename(string)
 
 # Not yet docummented
 /source_get_settings
