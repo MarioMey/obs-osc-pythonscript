@@ -96,6 +96,7 @@ Item position, scale, size and rotation interpolated transformation, with durati
 /item_tween to_pos_size  scene_name item_name to_pos_x to_pos_y to_width to_height duration delay ease_type
 /item_tween to_rot       scene_name item_name to_rot duration delay ease_type
 /item_tween to_transform scene_name item_name to_pos_x to_pos_y to_scl_x to_scl_y to_rot duration delay ease_type
+
 # Origin and target
 /item_tween from_to_pos       scene_name item_name from_pos_x from_pos_y to_pos_x to_pos_y duration delay ease_type
 /item_tween from_to_scl       scene_name item_name from_scl_x from_scl_y to_scl_x to_scl_y duration delay ease_type
@@ -110,13 +111,17 @@ To change a source setting, you don't have to send the scene name, as a source w
 # Files
 /source_set_image_file     source_name filename(string)
 /source_set_video_file     source_name filename(string)
+
 # Text
 /source_set_text           source_name text(string)
 /source_set_text_size      source_name size(int)
+
 # Image slide
 /source_set_slide_time     source_name time_between_slides(int)
+
 # Audio
 /source_set_volume         source_name volume(float)
+
 # Filters
 /source_set_opacity        source_name opacity(int)
 /source_filter_set_enabled source_name filter enabled(bool)
